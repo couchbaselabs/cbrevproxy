@@ -1,25 +1,23 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
+	"fmt"
 )
 
 func main() {
 
-	proxyTargetUrlStr := "http://localhost:4984"
-	proxyTargetUrl, err := url.Parse(proxyTargetUrlStr)
+	// Create a new CB Rev Proxy instance
+	cbRevProxy, err := New("http://localhost:4984")
 	if err != nil {
-		panic(fmt.Sprintf("Error parsing url: %v", err))
+		panic(fmt.Sprintf("Error creating cbrevproxy: %v", err))
 	}
 
-	revProxy := httputil.NewSingleHostReverseProxy(proxyTargetUrl)
+	// Register to handle all requests at /
+	http.Handle("/", cbRevProxy)
 
-	http.Handle("/", revProxy)
-
+	// Start HTTP listener (blocks)
 	log.Fatal(http.ListenAndServe(":49840", nil))
 
 }
